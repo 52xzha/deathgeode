@@ -15,16 +15,30 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - name: Windows
+            os: windows-latest
+          - name: macOS
+            os: macos-latest
+          - name: iOS
+            os: macos-latest
+            target: iOS
+            optional: true
           - name: Android32
+            os: ubuntu-latest
             target: Android32
           - name: Android64
+            os: ubuntu-latest
             target: Android64
     name: ${{ matrix.config.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.config.os }}
+    continue-on-error: ${{ matrix.config.optional == true }}
     steps:
       - uses: actions/checkout@v4
       - name: Unpack mod.zip
-        run: unzip -o mod.zip
+        shell: python
+        run: |
+          import zipfile
+          zipfile.ZipFile('mod.zip').extractall('.')
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         with:
